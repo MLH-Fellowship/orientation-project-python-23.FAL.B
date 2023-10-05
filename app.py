@@ -61,8 +61,15 @@ def education():
         return jsonify({})
 
     if request.method == 'POST':
-        return jsonify({})
-
+        if request.get_json():
+            education_data = request.get_json()
+            for value in education_data.values():
+                if value is None:
+                    return jsonify({"message":"Mandatory fields are missing"})
+            data['education'].append(Education(**education_data))
+            return jsonify({"id":len(data["education"])-1})
+        
+        else: return jsonify({"message":"Invalid data recieved"})
     return jsonify({})
 
 
