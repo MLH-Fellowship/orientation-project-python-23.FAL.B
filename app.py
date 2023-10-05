@@ -68,8 +68,7 @@ def education():
                     return jsonify({"message":"Mandatory fields are missing"})
             data['education'].append(Education(**education_data))
             return jsonify({"id":len(data["education"])-1})
-        
-        else: return jsonify({"message":"Invalid data recieved"})
+        return jsonify({"message":"Invalid data recieved"})
     return jsonify({})
 
 
