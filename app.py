@@ -45,12 +45,18 @@ def experience():
     Handle experience requests
     '''
     if request.method == 'GET':
-        return jsonify()
+        index = request.args.get('id')
+        if index and index.isdigit():
+            index = int(index)
+            if 0 <= index < len(data["experience"]):
+                return jsonify(data["experience"][index])
+            return jsonify({"message": "Invalid id"}), 400
+        return jsonify(data["experience"])
 
     if request.method == 'POST':
         return jsonify({})
-
     return jsonify({})
+
 
 @app.route('/resume/education', methods=['GET', 'POST'])
 def education():
