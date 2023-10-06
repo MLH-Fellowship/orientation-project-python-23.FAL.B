@@ -65,11 +65,11 @@ def education():
             education_data = request.get_json()
             for value in education_data.values():
                 if value is None:
-                    return jsonify({"message":"Mandatory fields are missing"})
+                    return jsonify({"message":"Mandatory fields are missing"}), 400
             data['education'].append(Education(**education_data))
             return jsonify({"id":len(data["education"])-1})
-        return jsonify({"message":"Invalid data recieved"})
-    return jsonify({"message":"Inavlid method"})
+        return jsonify({"message":"Invalid data recieved"}), 400
+    return jsonify({"message":"Inavlid method"}), 405
 
 
 @app.route('/resume/skill', methods=['GET', 'POST'])
