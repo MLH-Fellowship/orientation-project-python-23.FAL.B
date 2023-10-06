@@ -58,7 +58,7 @@ def education():
     Handles education requests
     '''
     if request.method == 'GET':
-        return jsonify({})
+        return jsonify(data["education"])
 
     if request.method == 'POST':
         if request.get_json():
@@ -69,7 +69,7 @@ def education():
             data['education'].append(Education(**education_data))
             return jsonify({"id":len(data["education"])-1})
         return jsonify({"message":"Invalid data recieved"})
-    return jsonify({})
+    return jsonify({"message":"Inavlid method"})
 
 
 @app.route('/resume/skill', methods=['GET', 'POST'])
