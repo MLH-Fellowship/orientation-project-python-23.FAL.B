@@ -88,4 +88,4 @@ def skill():
         data['skill'].append(new_skill)
         return jsonify({"id": len(data['skill']) - 1})
 
-    return jsonify({})
+    return jsonify({"message": "This Route only supports GET & POST"}), 405
