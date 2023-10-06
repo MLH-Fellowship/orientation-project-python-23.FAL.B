@@ -75,6 +75,18 @@ def skill():
         return jsonify(data.get('skill', []))
 
     if request.method == 'POST':
-        return jsonify({})
+        required_fields = ['name', 'proficiency', 'logo']
+        if not request.json:
+            return jsonify({"message": "Request body must be JSON"}), 400
+        for field in required_fields:
+            if field not in request.json:
+                return jsonify({"message": f"Your request is missing {field}."}), 400
+
+        new_skill = Skill(request.json['name'],
+                            request.json['proficiency'],
+                            request.json['logo'])
+        
+        data['skill'].append(new_skill)
+        return jsonify({"id": len(data['skill']) - 1})
 
     return jsonify({})
