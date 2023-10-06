@@ -85,7 +85,6 @@ def skill():
         new_skill = Skill(request.json['name'],
                             request.json['proficiency'],
                             request.json['logo'])
-        
         data['skill'].append(new_skill)
         return jsonify({"id": len(data['skill']) - 1})
 
