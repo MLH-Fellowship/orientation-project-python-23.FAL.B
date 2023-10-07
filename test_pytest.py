@@ -25,7 +25,8 @@ def test_experience():
         "start_date": "October 2022",
         "end_date": "Present",
         "description": "Writing JavaScript Code",
-        "logo": "example-logo.png"
+        "logo": "example-logo.png",
+        "id": 123
     }
 
     item_id = app.test_client().post('/resume/experience',
@@ -46,7 +47,8 @@ def test_education():
         "start_date": "October 2022",
         "end_date": "August 2024",
         "grade": "86%",
-        "logo": "example-logo.png"
+        "logo": "example-logo.png",
+        "id": 123
     }
     item_id = app.test_client().post('/resume/education',
                                      json=example_education).json['id']
@@ -64,7 +66,8 @@ def test_skill():
     example_skill = {
         "name": "JavaScript",
         "proficiency": "2-4 years",
-        "logo": "example-logo.png"
+        "logo": "example-logo.png",
+        "id": 123
     }
 
     item_id = app.test_client().post('/resume/skill',
