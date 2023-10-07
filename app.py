@@ -58,12 +58,18 @@ def education():
     Handles education requests
     '''
     if request.method == 'GET':
-        return jsonify({})
+        return jsonify(data["education"])
 
     if request.method == 'POST':
-        return jsonify({})
-
-    return jsonify({})
+        if request.get_json():
+            education_data = request.get_json()
+            for value in education_data.values():
+                if value is None:
+                    return jsonify({"message":"Mandatory fields are missing"}), 400
+            data['education'].append(Education(**education_data))
+            return jsonify({"id":len(data["education"])-1})
+        return jsonify({"message":"Invalid data recieved"}), 400
+    return jsonify({"message":"Inavlid method"}), 405
 
 
 @app.route('/resume/skill', methods=['GET', 'POST'])
