@@ -13,7 +13,8 @@ data = {
                    "October 2022",
                    "Present",
                    "Writing Python Code",
-                   "example-logo.png")
+                   "example-logo.png",
+                   123)
     ],
     "education": [
         Education("Computer Science",
@@ -21,7 +22,8 @@ data = {
                   "September 2019",
                   "July 2022",
                   "80%",
-                  "example-logo.png")
+                  "example-logo.png",
+                 456)
     ],
     "skill": [
         Skill("Python",
