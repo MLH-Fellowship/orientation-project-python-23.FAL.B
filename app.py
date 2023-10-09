@@ -91,6 +91,11 @@ def skill():
     Handles Skill requests
     '''
     if request.method == 'GET':
+        index = request.args.get("index")
+        if index:
+            if index.isdigit() and 0 <= int(index) < len(data["skill"]):
+                return jsonify(data["skill"][int(index)])
+            return jsonify({"message": "Invalid index"}), 400
         return jsonify(data.get('skill', []))
 
     if request.method == 'POST':
