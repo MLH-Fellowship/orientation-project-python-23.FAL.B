@@ -29,7 +29,7 @@ def test_experience():
     }
 
     item_id = app.test_client().post('/resume/experience',
-                                     json=example_experience).json['id']
+                                     json=example_experience).json["data"]['id']
     response = app.test_client().get('/resume/experience')
     assert response.json[item_id] == example_experience
 
@@ -49,7 +49,7 @@ def test_education():
         "logo": "example-logo.png"
     }
     item_id = app.test_client().post('/resume/education',
-                                     json=example_education).json['id']
+                                     json=example_education).json["data"]['id']
 
     response = app.test_client().get('/resume/education')
     assert response.json[item_id] == example_education
@@ -68,7 +68,7 @@ def test_skill():
     }
 
     item_id = app.test_client().post('/resume/skill',
-                                     json=example_skill).json['id']
+                                     json=example_skill).json["data"]['id']
 
     response = app.test_client().get('/resume/skill')
     assert response.json[item_id] == example_skill
