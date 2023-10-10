@@ -65,7 +65,7 @@ def experience():
 
 
 
-@app.route('/resume/education', methods=['GET', 'POST'])
+@app.route('/resume/education', methods=['GET', 'POST','DELETE'])
 def education():
     '''
     Handles education requests
@@ -82,17 +82,13 @@ def education():
             data['education'].append(Education(**education_data))
             return jsonify({"id":len(data["education"])-1})
         return jsonify({"message":"Invalid data recieved"}), 400
-    
     if request.method == 'DELETE':
         id_data = request.get_json()
-        if id_data:
-            index = id_data["id"]
-            if index > -1 and index < len(data["education"]):
-                del data["education"][index]
-            else:
-               return jsonify({"message":"index is out of bounds"}), 400 
+        index = id_data["id"]
+        if -1 < index < len(data["education"]):
+            del data["education"][index]
         else:
-           return jsonify({"message":"Invalid data recieved"}), 400
+            return jsonify({"message":"Index is out of bounds"}), 400
     return jsonify({"message":"Inavlid method"}), 405
 
 
