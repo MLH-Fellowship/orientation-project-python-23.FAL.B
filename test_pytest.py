@@ -50,9 +50,11 @@ def test_education():
     }
     item_id = app.test_client().post('/resume/education',
                                      json=example_education).json['id']
-
     response = app.test_client().get('/resume/education')
     assert response.json[item_id] == example_education
+    app.test_client().delete('/resume/education',json={"id":item_id})
+    response_two = app.test_client().get('/resume/education')
+    assert len(response_two.get_json()) != len(response.get_json())
 
 
 def test_skill():
