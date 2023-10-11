@@ -94,6 +94,7 @@ def test_skill():
 
     response = app.test_client().get('/resume/skill')
     assert response.json[item_id] == example_skill
+    #tests the delete_skill() function
     app.test_client().delete('/resume/skill',json={"id":item_id})
     response_two = app.test_client().get('/resume/skill')
     assert len(response_two.get_json()) != len(response.get_json())
