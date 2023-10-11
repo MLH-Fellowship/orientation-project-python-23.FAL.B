@@ -37,7 +37,6 @@ def hello_world():
     '''
     return jsonify({"message": "Hello, World!"})
 
-
 @app.route('/resume/experience', methods=['GET', 'POST'])
 def experience():
     '''
@@ -59,9 +58,7 @@ def experience():
             return jsonify({"message": "Missing required fields"}), 400
         data["experience"].append(Experience(**content))
         return jsonify({"id": len(data["experience"]) - 1}), 201
-
     return jsonify({"message": "Invalid method"}), 405
-
 
 @app.route('/resume/experience/<index>', methods=['PUT'])
 def put_experience(index):
@@ -84,9 +81,7 @@ def put_experience(index):
     for field in content.keys():
         if content[field]:
             setattr(data["experience"][index], field, content[field])
-
     return jsonify(data["experience"][index]), 200
-
 
 @app.route('/resume/education', methods=['GET'])
 def get_education():
@@ -100,7 +95,19 @@ def get_education():
         return jsonify({"message": "Invalid index"}), 400
     return jsonify(data["education"])
 
-
+@app.route('/resume/education', methods=['DELETE'])
+def delete_education():
+    """
+    Handles education DELETE requests
+    """
+    if request.get_json():
+        id_data = request.get_json()
+        index = id_data["id"]
+        if -1 < index < len(data["education"]):
+            del data["education"][index]
+        else:
+            return jsonify({"message":"Index is out of bounds"}), 400
+    return jsonify({"message":"Inavlid method"}), 405
 @app.route('/resume/education', methods=['POST'])
 def post_education():
     '''
@@ -114,6 +121,7 @@ def post_education():
         data['education'].append(Education(**education_data))
         return jsonify({"id":len(data["education"])-1})
     return jsonify({"message":"Invalid data recieved"}), 400
+
 
 
 @app.route('/resume/education/<index>', methods=['PUT'])
@@ -140,7 +148,6 @@ def put_education(index):
 
     return jsonify(data["education"][index]), 200
 
-
 @app.route('/resume/skill', methods=['GET'])
 def get_skill():
     '''
@@ -152,7 +159,6 @@ def get_skill():
             return jsonify(data["skill"][int(index)])
         return jsonify({"message": "Invalid index"}), 400
     return jsonify(data.get('skill', []))
-
 
 @app.route('/resume/skill', methods=['POST'])
 def post_skill():
