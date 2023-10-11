@@ -101,7 +101,7 @@ def get_education():
         return jsonify({"message": "Invalid index"}), 400
     return jsonify(data["education"])
 
- @app.route('/resume/education', methods=['DELETE'])
+@app.route('/resume/education', methods=['DELETE'])
 def delete_education():
     if request.method == 'DELETE':
         id_data = request.get_json()
