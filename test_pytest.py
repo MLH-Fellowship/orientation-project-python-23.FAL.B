@@ -72,9 +72,32 @@ def test_education():
     }
     item_id = app.test_client().post('/resume/education',
                                      json=example_education).json['id']
-
     response = app.test_client().get('/resume/education')
     assert response.json[item_id] == example_education
+    app.test_client().delete('/resume/education',json={"id":item_id})
+    response_two = app.test_client().get('/resume/education')
+    assert len(response_two.get_json()) != len(response.get_json())
+
+def test_put_education():
+    '''
+    Add a new education, update a field in the education, then get all education resources. 
+    
+    Check that it returns the updated education in that list
+    '''
+    example_education = {
+        "course": "Engineering",
+        "school": "NYU",
+        "start_date": "October 2022",
+        "end_date": "August 2024",
+        "grade": "86%",
+        "logo": "example-logo.png"
+    }
+    item_id = app.test_client().post('/resume/education',
+                                     json=example_education).json['id']
+    new_education = app.test_client().put('/resume/education/'+str(item_id),
+                                           json={"end_date": "October 2023"}).json
+    response = app.test_client().get('/resume/education')
+    assert response.json[item_id] == new_education
 
 
 def test_skill():
@@ -94,6 +117,24 @@ def test_skill():
 
     response = app.test_client().get('/resume/skill')
     assert response.json[item_id] == example_skill
+
+def test_put_skill():
+    '''
+    Add a new skill, update a field in the skill, then get all skill resources. 
+    
+    Check that it returns the updated skill in that list
+    '''
+    example_skill = {
+        "name": "JavaScript",
+        "proficiency": "2-4 years",
+        "logo": "example-logo.png"
+    }
+    item_id = app.test_client().post('/resume/skill',
+                                     json=example_skill).json['id']
+    new_skill = app.test_client().put('/resume/skill/'+str(item_id),
+                                           json={"proficiency": "10 years"}).json
+    response = app.test_client().get('/resume/skill')
+    assert response.json[item_id] == new_skill
 
 
 def test_skill_missing_data():
