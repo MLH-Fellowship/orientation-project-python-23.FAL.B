@@ -83,7 +83,7 @@ def put_experience(index):
     for field in content.keys():
         if content[field] and field in experience_required_fields:
             setattr(data["experience"][index], field, content[field])
-    return jsonify(data["education"][index]), 200
+    return jsonify(data["experience"][index]), 200
 
 @app.route('/resume/education', methods=['GET'])
 def get_education():
