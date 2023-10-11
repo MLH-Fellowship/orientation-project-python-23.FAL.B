@@ -34,6 +34,28 @@ def test_experience():
     assert response.json[item_id] == example_experience
 
 
+def test_put_experience():
+    '''
+    Add a new experience, update a field in the experience, then get all experiences. 
+    
+    Check that it returns the updated experience in that list
+    '''
+    example_experience = {
+        "title": "Software Developer",
+        "company": "A Cooler Company",
+        "start_date": "October 2022",
+        "end_date": "Present",
+        "description": "Writing JavaScript Code",
+        "logo": "example-logo.png"
+    }
+    item_id = app.test_client().post('/resume/experience',
+                                     json=example_experience).json['id']
+    new_experience = app.test_client().put('/resume/experience/'+str(item_id),
+                                           json={"end_date": "October 2023"}).json
+    response = app.test_client().get('/resume/experience')
+    assert response.json[item_id] == new_experience
+
+
 def test_education():
     '''
     Add a new education and then get all educations. 

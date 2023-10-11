@@ -30,6 +30,8 @@ data = {
     ]
 }
 
+experience_required_fields = set(["title", "company", "start_date",
+                                  "end_date", "description", "logo"])
 
 @app.route('/test')
 def hello_world():
@@ -55,8 +57,7 @@ def experience():
 
     if request.method == 'POST':
         content = request.get_json()
-        required_fields = ["title", "company", "start_date", "end_date", "description", "logo"]
-        if not content or any(field not in content for field in required_fields):
+        if not content or any(field not in content for field in experience_required_fields):
             return jsonify({"message": "Missing required fields"}), 400
         data["experience"].append(Experience(**content))
         return jsonify({"id": len(data["experience"]) - 1}), 201
@@ -64,24 +65,44 @@ def experience():
     return jsonify({"message": "Invalid method"}), 405
 
 
-
-@app.route('/resume/education', methods=['GET', 'POST','DELETE'])
-def education():
+@app.route('/resume/experience/<index>', methods=['PUT'])
+def put_experience(index):
     '''
-    Handles education requests
+    Handle experience PUT requests
+    Returns the updated experience resource
     '''
-    if request.method == 'GET':
-        return jsonify(data["education"])
+    # Check that a valid index was provided
+    if not index.isdigit() or int(index) < 0 or int(index) >= len(data["experience"]):
+        return jsonify({"message": "Invalid id"}), 400
 
-    if request.method == 'POST':
-        if request.get_json():
-            education_data = request.get_json()
-            for value in education_data.values():
-                if value is None:
-                    return jsonify({"message":"Mandatory fields are missing"}), 400
-            data['education'].append(Education(**education_data))
-            return jsonify({"id":len(data["education"])-1})
-        return jsonify({"message":"Invalid data recieved"}), 400
+    index = int(index)
+    content = request.get_json()
+
+    # Check that a valid body was provided
+    if not request.json:
+        return jsonify({"message": "Request body must be JSON"}), 400
+
+    # Update each field for the experience at the given index
+    for field in content.keys():
+        if content[field] and field in experience_required_fields:
+            setattr(data["experience"][index], field, content[field])
+
+
+
+@app.route('/resume/education', methods=['GET'])
+def get_education():
+    '''
+    Handles education GET requests
+    '''
+    index = request.args.get("id")
+    if index:
+        if index.isdigit() and 0 <= int(index) < len(data["education"]):
+            return jsonify(data["education"][int(index)])
+        return jsonify({"message": "Invalid index"}), 400
+    return jsonify(data["education"])
+
+ @app.route('/resume/education', methods=(['DELETE'])
+def delete_education():
     if request.method == 'DELETE':
         id_data = request.get_json()
         index = id_data["id"]
@@ -91,27 +112,50 @@ def education():
             return jsonify({"message":"Index is out of bounds"}), 400
     return jsonify({"message":"Inavlid method"}), 405
 
+  
+@app.route('/resume/education', methods=['POST'])
+def post_education():
 
-@app.route('/resume/skill', methods=['GET', 'POST'])
-def skill():
     '''
-    Handles Skill requests
+    Handles education POST requests
     '''
-    if request.method == 'GET':
-        return jsonify(data.get('skill', []))
+    if request.get_json():
+        education_data = request.get_json()
+        for value in education_data.values():
+            if value is None:
+                return jsonify({"message":"Mandatory fields are missing"}), 400
+        data['education'].append(Education(**education_data))
+        return jsonify({"id":len(data["education"])-1})
+    return jsonify({"message":"Invalid data recieved"}), 400
 
-    if request.method == 'POST':
-        required_fields = ['name', 'proficiency', 'logo']
-        if not request.json:
-            return jsonify({"message": "Request body must be JSON"}), 400
-        for field in required_fields:
-            if field not in request.json:
-                return jsonify({"message": f"Your request is missing {field}."}), 400
 
-        new_skill = Skill(request.json['name'],
-                            request.json['proficiency'],
-                            request.json['logo'])
-        data['skill'].append(new_skill)
-        return jsonify({"id": len(data['skill']) - 1})
+@app.route('/resume/skill', methods=['GET'])
+def get_skill():
+    '''
+    Handles GET skill requests
+    '''
+    index = request.args.get("id")
+    if index:
+        if index.isdigit() and 0 <= int(index) < len(data["skill"]):
+            return jsonify(data["skill"][int(index)])
+        return jsonify({"message": "Invalid index"}), 400
+    return jsonify(data.get('skill', []))
 
-    return jsonify({"message": "This Route only supports GET & POST"}), 405
+
+@app.route('/resume/skill', methods=['POST'])
+def post_skill():
+    '''
+    Handles POST skill requests
+    '''
+    required_fields = ['name', 'proficiency', 'logo']
+    if not request.json:
+        return jsonify({"message": "Request body must be JSON"}), 400
+    for field in required_fields:
+        if field not in request.json:
+            return jsonify({"message": f"Your request is missing {field}."}), 400
+
+    new_skill = Skill(request.json['name'],
+                        request.json['proficiency'],
+                        request.json['logo'])
+    data['skill'].append(new_skill)
+    return jsonify({"id": len(data['skill']) - 1})
