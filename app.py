@@ -40,12 +40,12 @@ skill_required_fields = set(["name", "proficiency", "logo"])
 
 # Function to dynamically check required fields and build
 # a response with all the missing required fields
-def check_fields(data, required_fields):
+def check_fields(incoming_data, required_fields):
     '''
     Check if all the required fields are present in the given data dictionary.
     '''
     # missing_fields is grounded on required_fields
-    missing_fields = required_fields - set(data.keys())
+    missing_fields = required_fields - set(incoming_data.keys())
     if missing_fields:
         return jsonify({"message": f"Missing required fields: {missing_fields}"}), 400
     return None
@@ -190,7 +190,6 @@ def post_skill():
     '''
     if not request.json:
         return jsonify({"message": "Request body must be JSON"}), 400
-    
     bad_fields = check_fields(request.json, skill_required_fields)
     if bad_fields:
         return bad_fields
