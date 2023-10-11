@@ -122,8 +122,6 @@ def post_education():
         return jsonify({"id":len(data["education"])-1})
     return jsonify({"message":"Invalid data recieved"}), 400
 
-
-
 @app.route('/resume/education/<index>', methods=['PUT'])
 def put_education(index):
     '''
@@ -213,6 +211,5 @@ def put_skill(index):
     for field in content.keys():
         if content[field]:
             setattr(data["skill"][index], field, content[field])
-
     return jsonify(data["skill"][index]), 200
-
+    
