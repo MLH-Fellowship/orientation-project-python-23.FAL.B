@@ -30,6 +30,8 @@ data = {
     ]
 }
 
+experience_required_fields = set(["title", "company", "start_date",
+                                  "end_date", "description", "logo"])
 
 @app.route('/test')
 def hello_world():
@@ -55,13 +57,37 @@ def experience():
 
     if request.method == 'POST':
         content = request.get_json()
-        required_fields = ["title", "company", "start_date", "end_date", "description", "logo"]
-        if not content or any(field not in content for field in required_fields):
+        if not content or any(field not in content for field in experience_required_fields):
             return jsonify({"message": "Missing required fields"}), 400
         data["experience"].append(Experience(**content))
         return jsonify({"id": len(data["experience"]) - 1}), 201
 
     return jsonify({"message": "Invalid method"}), 405
+
+
+@app.route('/resume/experience/<index>', methods=['PUT'])
+def put_experience(index):
+    '''
+    Handle experience PUT requests
+    Returns the updated experience resource
+    '''
+    # Check that a valid index was provided
+    if not index.isdigit() or int(index) < 0 or int(index) >= len(data["experience"]):
+        return jsonify({"message": "Invalid id"}), 400
+
+    index = int(index)
+    content = request.get_json()
+
+    # Check that a valid body was provided
+    if not request.json:
+        return jsonify({"message": "Request body must be JSON"}), 400
+
+    # Update each field for the experience at the given index
+    for field in content.keys():
+        if content[field] and field in experience_required_fields:
+            setattr(data["experience"][index], field, content[field])
+
+    return jsonify(data["experience"][index]), 200
 
 
 @app.route('/resume/education', methods=['GET'])
