@@ -64,25 +64,32 @@ def experience():
     return jsonify({"message": "Invalid method"}), 405
 
 
-
-@app.route('/resume/education', methods=['GET', 'POST'])
-def education():
+@app.route('/resume/education', methods=['GET'])
+def get_education():
     '''
-    Handles education requests
+    Handles education GET requests
     '''
-    if request.method == 'GET':
-        return jsonify(data["education"])
+    index = request.args.get("id")
+    if index:
+        if index.isdigit() and 0 <= int(index) < len(data["education"]):
+            return jsonify(data["education"][int(index)])
+        return jsonify({"message": "Invalid index"}), 400
+    return jsonify(data["education"])
 
-    if request.method == 'POST':
-        if request.get_json():
-            education_data = request.get_json()
-            for value in education_data.values():
-                if value is None:
-                    return jsonify({"message":"Mandatory fields are missing"}), 400
-            data['education'].append(Education(**education_data))
-            return jsonify({"id":len(data["education"])-1})
-        return jsonify({"message":"Invalid data recieved"}), 400
-    return jsonify({"message":"Inavlid method"}), 405
+
+@app.route('/resume/education', methods=['POST'])
+def post_education():
+    '''
+    Handles education POST requests
+    '''
+    if request.get_json():
+        education_data = request.get_json()
+        for value in education_data.values():
+            if value is None:
+                return jsonify({"message":"Mandatory fields are missing"}), 400
+        data['education'].append(Education(**education_data))
+        return jsonify({"id":len(data["education"])-1})
+    return jsonify({"message":"Invalid data recieved"}), 400
 
 
 @app.route('/resume/skill', methods=['GET'])
