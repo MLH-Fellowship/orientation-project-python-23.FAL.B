@@ -94,3 +94,53 @@ def test_skill():
 
     response = app.test_client().get('/resume/skill')
     assert response.json[item_id] == example_skill
+
+
+def test_skill_missing_data():
+    '''
+    Add a new skill with missing data and check that
+    it returns a 400 error
+    '''
+    example_skill = {
+        "proficiency": "2-4 years",
+        "logo": "example-logo.png"
+    }
+
+    response = app.test_client().post('/resume/skill',
+                                      json=example_skill)
+    assert response.status_code == 400
+
+
+def test_education_missing_data():
+    '''
+    Add a new education with missing data and check that
+    it returns a 400 error
+    '''
+    example_education = {
+        "course": "Engineering",
+        "school": "NYU",
+        "start_date": "October 2022",
+        "logo": "example-logo.png"
+    }
+
+    response = app.test_client().post('/resume/education',
+                                      json=example_education)
+    assert response.status_code == 400
+
+
+def test_experience_missing_data():
+    '''
+    Add a new experience with missing data and check that
+    it returns a 400 error
+    '''
+    example_experience = {
+        "title": "Software Developer",
+        "company": "A Cooler Company",
+        "start_date": "October 2022",
+        "description": "Writing JavaScript Code",
+        "logo": "example-logo.png"
+    }
+
+    response = app.test_client().post('/resume/experience',
+                                      json=example_experience)
+    assert response.status_code == 400
