@@ -212,4 +212,3 @@ def put_skill(index):
         if content[field]:
             setattr(data["skill"][index], field, content[field])
     return jsonify(data["skill"][index]), 200
-    
