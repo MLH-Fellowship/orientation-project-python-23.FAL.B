@@ -245,6 +245,31 @@ def post_skill():
     return jsonify({"id": len(data['skill']) - 1})
 
 
+@app.route('/resume/skill', methods=['PUT'])
+def put_skill():
+    '''
+    Handles PUT skill requests
+    '''
+    if request.get_json():
+        content = request.get_json()
+        if "current_id" in content and "new_id" in content:
+            current_id = content["current_id"]
+            new_id = content["new_id"]
+            try:
+                current_id = int(current_id)
+                new_id = int(new_id)
+            except ValueError:
+                return jsonify({"message": "Invalid input"}), 400
+            if -1 < current_id < len(data["skill"]) and -1 < new_id < len(data["skill"]):
+                temp = data["skill"][current_id]
+                data["skill"][current_id] = data["skill"][new_id]
+                data["skill"][new_id] = temp
+                return jsonify(data["skill"])
+            return jsonify({"message": "Invalid id"}), 400
+        return jsonify({"message": "Mandatory fields are missing"}), 400
+    return jsonify({"message": "Invalid data recieved"}), 400
+
+
 @app.route('/resume/skill/<index>', methods=['PUT'])
 def put_skill_indexed(index):
     '''
