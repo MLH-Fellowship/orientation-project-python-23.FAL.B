@@ -66,7 +66,6 @@ def post_experience():
     data["experience"].append(Experience(**content))
     result = content
     result["id"] = len(data["experience"]) - 1
-    
     return jsonify(result), 201
 
 
@@ -158,7 +157,29 @@ def post_education():
             if value is None:
                 return jsonify({"message": "Mandatory fields are missing"}), 400
         data['education'].append(Education(**education_data))
-        return jsonify({"id": len(data["education"])-1})
+        result = education_data
+        result["id"] = len(data["education"]) - 1
+        return jsonify(result), 201
+    return jsonify({"message": "Invalid data recieved"}), 400
+
+
+@app.route('/resume/education', methods=['PUT'])
+def put_education():
+    '''
+    Handles education PUT requests
+    '''
+    if request.get_json():
+        education_data = request.get_json()
+        if "current_id" in education_data and "new_id" in education_data:
+            current_id = education_data["current_id"]
+            new_id = education_data["new_id"]
+            if -1 < current_id < len(data["education"]) and -1 < new_id < len(data["education"]):
+                temp = data["education"][current_id]
+                data["education"][current_id] = data["education"][new_id]
+                data["education"][new_id] = temp
+                return jsonify(data["education"])
+            return jsonify({"message": "Invalid id"}), 400
+        return jsonify({"message": "Mandatory fields are missing"}), 400
     return jsonify({"message": "Invalid data recieved"}), 400
 
 
