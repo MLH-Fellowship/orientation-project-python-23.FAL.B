@@ -33,6 +33,24 @@ def test_experience():
     response = app.test_client().get('/resume/experience')
     assert response.json[item_id] == example_experience
 
+def test_delete_experience():
+    '''
+    Create a new experience and then delete it.
+    '''
+    example_experience = {
+        "title": "Software Developer",
+        "company": "A Cooler Company",
+        "start_date": "October 2022",
+        "end_date": "Present",
+        "description": "Writing JavaScript Code",
+        "logo": "example-logo.png"
+    }
+    item_id = app.test_client().post('/resume/experience',
+                                        json=example_experience).json['id']
+
+    response = app.test_client().delete('/resume/experience',json={"id":item_id})
+    assert response.status_code == 200
+    assert response.json['message'] == "Experience deleted"
 
 def test_put_experience():
     '''
