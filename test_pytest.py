@@ -82,9 +82,18 @@ def test_education():
                                      json=example_education).json['id']
     response = app.test_client().get('/resume/education')
     assert response.json[item_id] == example_education
+    new_id = 0
+    put_json = {
+        "current_id": item_id,
+        "new_id": new_id
+    }
+    app.test_client().put('/resume/education', json=put_json)
+    response = app.test_client().get('/resume/education')
+    assert response.json[new_id] == example_education
     app.test_client().delete('/resume/education',json={"id":item_id})
     response_two = app.test_client().get('/resume/education')
     assert len(response_two.get_json()) != len(response.get_json())
+
 
 def test_put_indexed_education():
     '''
