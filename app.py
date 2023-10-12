@@ -37,7 +37,7 @@ def hello_world():
     '''
     return jsonify({"message": "Hello, World!"})
 
-@app.route('/resume/experience', methods=['GET', 'POST'])
+@app.route('/resume/experience', methods=['GET', 'POST', 'DELETE'])
 def experience():
     '''
     Handle experience requests
@@ -58,6 +58,15 @@ def experience():
             return jsonify({"message": "Missing required fields"}), 400
         data["experience"].append(Experience(**content))
         return jsonify({"id": len(data["experience"]) - 1}), 201
+
+    if request.method == 'DELETE':
+        if request.get_json():
+            id_data = request.get_json()
+            index = id_data.get("id", None)
+            if index.isdigit() and 0 <= int(index) < len(data["experience"]):
+                del data["experience"][int(index)]
+                return jsonify({"message": "Experience deleted"}), 200
+        return jsonify({"message": "Invalid id"}), 400
     return jsonify({"message": "Invalid method"}), 405
 
 @app.route('/resume/experience/<index>', methods=['PUT'])
