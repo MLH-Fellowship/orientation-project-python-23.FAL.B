@@ -74,24 +74,24 @@ def put_experience():
     '''
     Handles experience PUT requests
     '''
-    content = request.get_json()
-    if not content:
-        return jsonify({"message": "Request body must be JSON"}), 400
-    required_fields = set(["current_id", "new_id"])
-    if not all(field in content for field in required_fields):
-        return jsonify({"message": "Missing required fields"}), 400
-    try:
-        current_id = int(content["current_id"])
-        new_id = int(content["new_id"])
-    except ValueError:
-        return jsonify({"message": "Invalid input"}), 400
-    print(current_id, new_id, len(data["experience"]))
-    if -1 < current_id < len(data["experience"]) and -1 < new_id < len(data["experience"]):
-        temp = data["experience"][current_id]
-        data["experience"][current_id] = data["experience"][new_id]
-        data["experience"][new_id] = temp
-        return jsonify(data["experience"])
-    return jsonify({"message": "Invalid id"}), 400
+    if request.get_json():
+        content = request.get_json()
+        if "current_id" in content and "new_id" in content:
+            current_id = content["current_id"]
+            new_id = content["new_id"]
+            try:
+                current_id = int(current_id)
+                new_id = int(new_id)
+            except ValueError:
+                return jsonify({"message": "Invalid input"}), 400
+            if -1 < current_id < len(data["experience"]) and -1 < new_id < len(data["experience"]):
+                temp = data["experience"][current_id]
+                data["experience"][current_id] = data["experience"][new_id]
+                data["experience"][new_id] = temp
+                return jsonify(data["experience"])
+            return jsonify({"message": "Invalid id"}), 400
+        return jsonify({"message": "Mandatory fields are missing"}), 400
+    return jsonify({"message": "Invalid data recieved"}), 400
 
 
 @app.route('/resume/experience/<index>', methods=['PUT'])
@@ -169,10 +169,15 @@ def put_education():
     Handles education PUT requests
     '''
     if request.get_json():
-        education_data = request.get_json()
-        if "current_id" in education_data and "new_id" in education_data:
-            current_id = education_data["current_id"]
-            new_id = education_data["new_id"]
+        content = request.get_json()
+        if "current_id" in content and "new_id" in content:
+            current_id = content["current_id"]
+            new_id = content["new_id"]
+            try:
+                current_id = int(current_id)
+                new_id = int(new_id)
+            except ValueError:
+                return jsonify({"message": "Invalid input"}), 400
             if -1 < current_id < len(data["education"]) and -1 < new_id < len(data["education"]):
                 temp = data["education"][current_id]
                 data["education"][current_id] = data["education"][new_id]
@@ -241,7 +246,7 @@ def post_skill():
 
 
 @app.route('/resume/skill/<index>', methods=['PUT'])
-def put_skill(index):
+def put_skill_indexed(index):
     '''
     Handle skill PUT requests
     Returns the updated skill resource
