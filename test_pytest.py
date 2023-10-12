@@ -134,6 +134,15 @@ def test_skill():
 
     response = app.test_client().get('/resume/skill')
     assert response.json[item_id] == example_skill
+    new_id = 0
+    put_json = {
+        "current_id": item_id,
+        "new_id": new_id
+    }
+    app.test_client().put('/resume/skill', json=put_json)
+    response = app.test_client().get('/resume/skill')
+    assert response.json[new_id] == example_skill
+
 
 def test_put_indexed_skill():
     '''
