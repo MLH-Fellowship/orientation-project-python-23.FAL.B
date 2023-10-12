@@ -32,6 +32,14 @@ def test_experience():
                                      json=example_experience).json['id']
     response = app.test_client().get('/resume/experience')
     assert response.json[item_id] == example_experience
+    new_id = 0
+    put_json = {
+        "current_id": item_id,
+        "new_id": new_id
+    }
+    app.test_client().put('/resume/experience', json=put_json)
+    response = app.test_client().get('/resume/experience')
+    assert response.json[new_id] == example_experience
 
 
 def test_put_indexed_experience():
