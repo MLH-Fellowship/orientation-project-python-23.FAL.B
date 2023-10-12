@@ -4,6 +4,7 @@ Flask Application
 from flask import Flask, jsonify, request
 from models import Experience, Education, Skill
 
+
 app = Flask(__name__)
 
 data = {
@@ -30,12 +31,14 @@ data = {
     ]
 }
 
+
 @app.route('/test')
 def hello_world():
     '''
     Returns a JSON test message
     '''
     return jsonify({"message": "Hello, World!"})
+
 
 @app.route('/resume/experience', methods=['GET', 'POST'])
 def experience():
@@ -60,6 +63,7 @@ def experience():
         return jsonify({"id": len(data["experience"]) - 1}), 201
     return jsonify({"message": "Invalid method"}), 405
 
+
 @app.route('/resume/experience/<index>', methods=['PUT'])
 def put_experience(index):
     '''
@@ -83,6 +87,7 @@ def put_experience(index):
             setattr(data["experience"][index], field, content[field])
     return jsonify(data["experience"][index]), 200
 
+
 @app.route('/resume/education', methods=['GET'])
 def get_education():
     '''
@@ -95,6 +100,7 @@ def get_education():
         return jsonify({"message": "Invalid index"}), 400
     return jsonify(data["education"])
 
+
 @app.route('/resume/education', methods=['DELETE'])
 def delete_education():
     """
@@ -106,8 +112,10 @@ def delete_education():
         if -1 < index < len(data["education"]):
             del data["education"][index]
         else:
-            return jsonify({"message":"Index is out of bounds"}), 400
-    return jsonify({"message":"Inavlid method"}), 405
+            return jsonify({"message": "Index is out of bounds"}), 400
+    return jsonify({"message": "Inavlid method"}), 405
+
+
 @app.route('/resume/education', methods=['POST'])
 def post_education():
     '''
@@ -117,11 +125,10 @@ def post_education():
         education_data = request.get_json()
         for value in education_data.values():
             if value is None:
-                return jsonify({"message":"Mandatory fields are missing"}), 400
+                return jsonify({"message": "Mandatory fields are missing"}), 400
         data['education'].append(Education(**education_data))
-        return jsonify({"id":len(data["education"])-1})
-    return jsonify({"message":"Invalid data recieved"}), 400
-
+        return jsonify({"id": len(data["education"])-1})
+    return jsonify({"message": "Invalid data recieved"}), 400
 
 
 @app.route('/resume/education/<index>', methods=['PUT'])
@@ -148,6 +155,7 @@ def put_education(index):
 
     return jsonify(data["education"][index]), 200
 
+
 @app.route('/resume/skill', methods=['GET'])
 def get_skill():
     '''
@@ -159,6 +167,7 @@ def get_skill():
             return jsonify(data["skill"][int(index)])
         return jsonify({"message": "Invalid index"}), 400
     return jsonify(data.get('skill', []))
+
 
 @app.route('/resume/skill', methods=['POST'])
 def post_skill():
@@ -177,6 +186,7 @@ def post_skill():
                         request.json['logo'])
     data['skill'].append(new_skill)
     return jsonify({"id": len(data['skill']) - 1})
+
 
 @app.route('/resume/skill/<index>', methods=['PUT'])
 def put_skill(index):
