@@ -34,7 +34,7 @@ def test_experience():
     assert response.json[item_id] == example_experience
 
 
-def test_put_experience():
+def test_put_indexed_experience():
     '''
     Add a new experience, update a field in the experience, then get all experiences. 
     
@@ -78,7 +78,7 @@ def test_education():
     response_two = app.test_client().get('/resume/education')
     assert len(response_two.get_json()) != len(response.get_json())
 
-def test_put_education():
+def test_put_indexed_education():
     '''
     Add a new education, update a field in the education, then get all education resources. 
     
@@ -118,7 +118,7 @@ def test_skill():
     response = app.test_client().get('/resume/skill')
     assert response.json[item_id] == example_skill
 
-def test_put_skill():
+def test_put_indexed_skill():
     '''
     Add a new skill, update a field in the skill, then get all skill resources. 
     
