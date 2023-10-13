@@ -2,7 +2,7 @@
 Flask Application
 '''
 from flask import Flask, jsonify, request
-from models import Experience, Education, Skill
+from models import Experience, Education, Skill, Contact
 
 app = Flask(__name__)
 
@@ -27,7 +27,11 @@ data = {
         Skill("Python",
               "1-2 Years",
               "example-logo.png")
-    ]
+    ],
+    "contact":
+        Contact("Mike Swift",
+                "+12129876543",
+                "mike@example.com")
 }
 
 @app.route('/test')
@@ -201,3 +205,34 @@ def put_skill(index):
             setattr(data["skill"][index], field, content[field])
 
     return jsonify(data["skill"][index]), 200
+
+
+# Route for Contact GET & PUT retrieves and updates contact information
+@app.route('/resume/contact', methods=['GET', 'PUT'])
+def contact():
+    '''
+    Handles Contact requests
+    '''
+    if request.method == 'GET':
+        # GET request that returns the contact information or a message if none is found
+        return jsonify(data.get('contact', {"message": "No contact information found"}))
+
+    if request.method == 'PUT':
+        # PUT request that updates the contact information and returns the updated information
+        content = request.json
+        if not content:
+            # If the JSON is missing, return a 400 error with a message
+            return jsonify({"message": "The JSON is missing"}), 400
+        modified = False
+        for field, value in content.items():
+            # For each field in the JSON, check if it exists and update it if it does
+            if hasattr(data['contact'], field) and value:
+                setattr(data['contact'], field, value)
+                modified = True
+        if modified:
+            # If the contact information was modified, return the updated information
+            return jsonify(data.get('contact', {}))
+        # If no modifications were made, return a 400 error with a message
+        return jsonify({"message": "Fields were the same or invalid"}), 400
+    # If an invalid method is used, return a 405 error with a message
+    return jsonify({"message": "Invalid method"}), 405

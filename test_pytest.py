@@ -135,3 +135,24 @@ def test_put_skill():
                                            json={"proficiency": "10 years"}).json
     response = app.test_client().get('/resume/skill')
     assert response.json[item_id] == new_skill
+
+
+# Test for the /resume/contact endpoint
+def test_contact():
+    '''
+    Retrieve the current contact info and then edit it.
+
+    Check that it returns the past and the updated contact info
+    '''
+    response = app.test_client().get('/resume/contact')
+    assert response.json['name'] == "Mike Swift"
+    assert response.json['email'] == "mike@example.com"
+    # A JSON with the content to be changed
+    update_contact = {
+        "name": "John Smith",
+        "email": "newmail@example.com",
+    }
+    put_response = app.test_client().put('/resume/contact', json=update_contact)
+    # Assert the changes were made
+    assert put_response.json['name'] == "John Smith"
+    assert put_response.json['email'] == "newmail@example.com"
