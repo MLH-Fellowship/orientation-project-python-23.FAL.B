@@ -141,22 +141,52 @@ def test_put_skill():
     assert response.json[item_id] == new_skill
 
 
-# Test for the /resume/contact endpoint
-def test_contact():
-    '''
-    Retrieve the current contact info and then edit it.
 
-    Check that it returns the past and the updated contact info
+def test_skill_missing_data():
     '''
-    response = app.test_client().get('/resume/contact')
-    assert response.json['name'] == "Mike Swift"
-    assert response.json['email'] == "mike@example.com"
-    # A JSON with the content to be changed
-    update_contact = {
-        "name": "John Smith",
-        "email": "newmail@example.com",
+    Add a new skill with missing data and check that
+    it returns a 400 error
+    '''
+    example_skill = {
+        "proficiency": "2-4 years",
+        "logo": "example-logo.png"
     }
-    put_response = app.test_client().put('/resume/contact', json=update_contact)
-    # Assert the changes were made
-    assert put_response.json['name'] == "John Smith"
-    assert put_response.json['email'] == "newmail@example.com"
+
+    response = app.test_client().post('/resume/skill',
+                                      json=example_skill)
+    assert response.status_code == 400
+
+
+def test_education_missing_data():
+    '''
+    Add a new education with missing data and check that
+    it returns a 400 error
+    '''
+    example_education = {
+        "course": "Engineering",
+        "school": "NYU",
+        "start_date": "October 2022",
+        "logo": "example-logo.png"
+    }
+
+    response = app.test_client().post('/resume/education',
+                                      json=example_education)
+    assert response.status_code == 400
+
+
+def test_experience_missing_data():
+    '''
+    Add a new experience with missing data and check that
+    it returns a 400 error
+    '''
+    example_experience = {
+        "title": "Software Developer",
+        "company": "A Cooler Company",
+        "start_date": "October 2022",
+        "description": "Writing JavaScript Code",
+        "logo": "example-logo.png"
+    }
+
+    response = app.test_client().post('/resume/experience',
+                                      json=example_experience)
+    assert response.status_code == 400

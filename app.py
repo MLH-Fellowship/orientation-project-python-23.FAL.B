@@ -34,6 +34,26 @@ data = {
                 "mike@example.com")
 }
 
+experience_required_fields = set(["title", "company", "start_date",
+                                  "end_date", "description", "logo"])
+
+education_required_fields = set(["course", "school", "start_date",
+                                 "end_date", "grade", "logo"])
+
+skill_required_fields = set(["name", "proficiency", "logo"])
+
+# Function to dynamically check required fields and build
+# a response with all the missing required fields
+def check_fields(incoming_data, required_fields):
+    '''
+    Check if all the required fields are present in the given data dictionary.
+    '''
+    # missing_fields is grounded on required_fields
+    missing_fields = required_fields - set(incoming_data.keys())
+    if missing_fields:
+        return jsonify({"message": f"Missing required fields: {missing_fields}"}), 400
+    return None
+
 @app.route('/test')
 def hello_world():
     '''
@@ -57,9 +77,9 @@ def experience():
 
     if request.method == 'POST':
         content = request.get_json()
-        required_fields = set(["title", "company", "start_date", "end_date", "description", "logo"])
-        if not content or any(field not in content for field in required_fields):
-            return jsonify({"message": "Missing required fields"}), 400
+        bad_fields = check_fields(content, experience_required_fields)
+        if bad_fields:
+            return bad_fields
         data["experience"].append(Experience(**content))
         return jsonify({"id": len(data["experience"]) - 1}), 201
     return jsonify({"message": "Invalid method"}), 405
@@ -119,6 +139,9 @@ def post_education():
     '''
     if request.get_json():
         education_data = request.get_json()
+        bad_fields = check_fields(education_data, education_required_fields)
+        if bad_fields:
+            return bad_fields
         for value in education_data.values():
             if value is None:
                 return jsonify({"message":"Mandatory fields are missing"}), 400
@@ -167,12 +190,11 @@ def post_skill():
     '''
     Handles POST skill requests
     '''
-    required_fields = ['name', 'proficiency', 'logo']
     if not request.json:
         return jsonify({"message": "Request body must be JSON"}), 400
-    for field in required_fields:
-        if field not in request.json:
-            return jsonify({"message": f"Your request is missing {field}."}), 400
+    bad_fields = check_fields(request.json, skill_required_fields)
+    if bad_fields:
+        return bad_fields
 
     new_skill = Skill(request.json['name'],
                         request.json['proficiency'],
