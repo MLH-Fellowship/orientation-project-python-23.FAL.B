@@ -126,8 +126,6 @@ def post_education():
         return jsonify({"id":len(data["education"])-1})
     return jsonify({"message":"Invalid data recieved"}), 400
 
-
-
 @app.route('/resume/education/<index>', methods=['PUT'])
 def put_education(index):
     '''
@@ -182,6 +180,20 @@ def post_skill():
     data['skill'].append(new_skill)
     return jsonify({"id": len(data['skill']) - 1})
 
+@app.route('/resume/skill', methods=['DELETE'])
+def delete_skill():
+    """
+    Handles DELETE skill requests
+    """
+    if request.get_json():
+        id_data = request.get_json()
+        index = id_data["id"]
+        if -1 < index < len(data["skill"]):
+            del data["skill"][index]
+        else:
+            return jsonify({"message":"Index is out of bounds"}), 400
+    return jsonify({"message":"Inavlid method"}), 405
+
 @app.route('/resume/skill/<index>', methods=['PUT'])
 def put_skill(index):
     '''
@@ -203,7 +215,6 @@ def put_skill(index):
     for field in content.keys():
         if content[field]:
             setattr(data["skill"][index], field, content[field])
-
     return jsonify(data["skill"][index]), 200
 
 
