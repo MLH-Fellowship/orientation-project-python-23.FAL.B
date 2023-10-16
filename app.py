@@ -61,28 +61,59 @@ def hello_world():
     '''
     return jsonify({"message": "Hello, World!"})
 
-@app.route('/resume/experience', methods=['GET', 'POST'])
+
+def get_experience():
+    '''
+    Handles GET experience requests
+    '''
+    index = request.args.get('id')
+    if index and index.isdigit():
+        index = int(index)
+        if 0 <= index < len(data["experience"]):
+            return jsonify(data["experience"][index])
+        return jsonify({"message": "Invalid id"}), 400
+    return jsonify(data["experience"])
+
+def post_experience():
+    '''
+    Handles POST experience requests
+    '''
+    content = request.get_json()
+    required_fields = set(["title", "company", "start_date", "end_date", "description", "logo"])
+    if not content or any(field not in content for field in required_fields):
+        return jsonify({"message": "Missing required fields"}), 400
+    data["experience"].append(Experience(**content))
+    return jsonify({"id": len(data["experience"]) - 1}), 201
+
+def delete_experience():
+    '''
+    Handles DELETE experience requests
+    '''
+    if request.get_json():
+        id_data = request.get_json()
+        index = id_data.get("id", None)
+        if index and 0 <= int(index) < len(data["experience"]):
+            del data["experience"][int(index)]
+            return jsonify({"message": "Experience deleted"}), 200
+    return jsonify({"message": "Invalid id"}), 400
+
+@app.route('/resume/experience', methods=['GET', 'POST', 'DELETE'])
 def experience():
     '''
-    Handle experience requests
+    Handles experience requests
     '''
     if request.method == 'GET':
-        index = request.args.get('id')
-        if index and index.isdigit():
-            index = int(index)
-            if 0 <= index < len(data["experience"]):
-                return jsonify(data["experience"][index])
-            return jsonify({"message": "Invalid id"}), 400
-        return jsonify(data["experience"])
+        return get_experience()
 
     if request.method == 'POST':
-        content = request.get_json()
-        bad_fields = check_fields(content, experience_required_fields)
-        if bad_fields:
-            return bad_fields
-        data["experience"].append(Experience(**content))
-        return jsonify({"id": len(data["experience"]) - 1}), 201
+        return post_experience()
+
+    if request.method == 'DELETE':
+        return delete_experience()
+
+
     return jsonify({"message": "Invalid method"}), 405
+
 
 @app.route('/resume/experience/<index>', methods=['PUT'])
 def put_experience(index):
