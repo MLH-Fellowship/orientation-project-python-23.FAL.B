@@ -2,7 +2,7 @@
 Flask Application
 '''
 from flask import Flask, jsonify, request
-from models import Experience, Education, Skill
+from models import Experience, Education, Skill, Contact
 
 
 app = Flask(__name__)
@@ -28,8 +28,32 @@ data = {
         Skill("Python",
               "1-2 Years",
               "example-logo.png")
-    ]
+    ],
+    "contact":
+        Contact("Mike Swift",
+                "+12129876543",
+                "mike@example.com")
 }
+
+experience_required_fields = set(["title", "company", "start_date",
+                                  "end_date", "description", "logo"])
+
+education_required_fields = set(["course", "school", "start_date",
+                                 "end_date", "grade", "logo"])
+
+skill_required_fields = set(["name", "proficiency", "logo"])
+
+# Function to dynamically check required fields and build
+# a response with all the missing required fields
+def check_fields(incoming_data, required_fields):
+    '''
+    Check if all the required fields are present in the given data dictionary.
+    '''
+    # missing_fields is grounded on required_fields
+    missing_fields = required_fields - set(incoming_data.keys())
+    if missing_fields:
+        return jsonify({"message": f"Missing required fields: {missing_fields}"}), 400
+    return None
 
 
 @app.route('/test')
@@ -38,6 +62,7 @@ def hello_world():
     Returns a JSON test message
     '''
     return jsonify({"message": "Hello, World!"})
+
 
 
 @app.route('/resume/experience', methods=['GET'])
@@ -153,6 +178,9 @@ def post_education():
     '''
     if request.get_json():
         education_data = request.get_json()
+        bad_fields = check_fields(education_data, education_required_fields)
+        if bad_fields:
+            return bad_fields
         for value in education_data.values():
             if value is None:
                 return jsonify({"message": "Mandatory fields are missing"}), 400
@@ -186,6 +214,7 @@ def put_education():
             return jsonify({"message": "Invalid id"}), 400
         return jsonify({"message": "Mandatory fields are missing"}), 400
     return jsonify({"message": "Invalid data recieved"}), 400
+
 
 
 @app.route('/resume/education/<index>', methods=['PUT'])
@@ -231,19 +260,17 @@ def post_skill():
     '''
     Handles POST skill requests
     '''
-    required_fields = ['name', 'proficiency', 'logo']
     if not request.json:
         return jsonify({"message": "Request body must be JSON"}), 400
-    for field in required_fields:
-        if field not in request.json:
-            return jsonify({"message": f"Your request is missing {field}."}), 400
+    bad_fields = check_fields(request.json, skill_required_fields)
+    if bad_fields:
+        return bad_fields
 
     new_skill = Skill(request.json['name'],
                         request.json['proficiency'],
                         request.json['logo'])
     data['skill'].append(new_skill)
     return jsonify({"id": len(data['skill']) - 1})
-
 
 @app.route('/resume/skill', methods=['PUT'])
 def put_skill():
@@ -270,6 +297,7 @@ def put_skill():
     return jsonify({"message": "Invalid data recieved"}), 400
 
 
+
 @app.route('/resume/skill/<index>', methods=['PUT'])
 def put_skill_indexed(index):
     '''
@@ -291,5 +319,35 @@ def put_skill_indexed(index):
     for field in content.keys():
         if content[field]:
             setattr(data["skill"][index], field, content[field])
-
     return jsonify(data["skill"][index]), 200
+
+
+# Route for Contact GET & PUT retrieves and updates contact information
+@app.route('/resume/contact', methods=['GET', 'PUT'])
+def contact():
+    '''
+    Handles Contact requests
+    '''
+    if request.method == 'GET':
+        # GET request that returns the contact information or a message if none is found
+        return jsonify(data.get('contact', {"message": "No contact information found"}))
+
+    if request.method == 'PUT':
+        # PUT request that updates the contact information and returns the updated information
+        content = request.json
+        if not content:
+            # If the JSON is missing, return a 400 error with a message
+            return jsonify({"message": "The JSON is missing"}), 400
+        modified = False
+        for field, value in content.items():
+            # For each field in the JSON, check if it exists and update it if it does
+            if hasattr(data['contact'], field) and value:
+                setattr(data['contact'], field, value)
+                modified = True
+        if modified:
+            # If the contact information was modified, return the updated information
+            return jsonify(data.get('contact', {}))
+        # If no modifications were made, return a 400 error with a message
+        return jsonify({"message": "Fields were the same or invalid"}), 400
+    # If an invalid method is used, return a 405 error with a message
+    return jsonify({"message": "Invalid method"}), 405

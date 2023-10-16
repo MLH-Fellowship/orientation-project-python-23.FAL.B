@@ -41,6 +41,24 @@ def test_experience():
     response = app.test_client().get('/resume/experience')
     assert response.json[new_id] == example_experience
 
+def test_delete_experience():
+    '''
+    Create a new experience and then delete it.
+    '''
+    example_experience = {
+        "title": "Software Developer",
+        "company": "A Cooler Company",
+        "start_date": "October 2022",
+        "end_date": "Present",
+        "description": "Writing JavaScript Code",
+        "logo": "example-logo.png"
+    }
+    item_id = app.test_client().post('/resume/experience',
+                                        json=example_experience).json['id']
+
+    response = app.test_client().delete('/resume/experience',json={"id":item_id})
+    assert response.status_code == 200
+    assert response.json['message'] == "Experience deleted"
 
 def test_put_indexed_experience():
     '''
@@ -134,6 +152,7 @@ def test_skill():
 
     response = app.test_client().get('/resume/skill')
     assert response.json[item_id] == example_skill
+
     new_id = 0
     put_json = {
         "current_id": item_id,
@@ -161,3 +180,54 @@ def test_put_indexed_skill():
                                            json={"proficiency": "10 years"}).json
     response = app.test_client().get('/resume/skill')
     assert response.json[item_id] == new_skill
+
+
+
+def test_skill_missing_data():
+    '''
+    Add a new skill with missing data and check that
+    it returns a 400 error
+    '''
+    example_skill = {
+        "proficiency": "2-4 years",
+        "logo": "example-logo.png"
+    }
+
+    response = app.test_client().post('/resume/skill',
+                                      json=example_skill)
+    assert response.status_code == 400
+
+
+def test_education_missing_data():
+    '''
+    Add a new education with missing data and check that
+    it returns a 400 error
+    '''
+    example_education = {
+        "course": "Engineering",
+        "school": "NYU",
+        "start_date": "October 2022",
+        "logo": "example-logo.png"
+    }
+
+    response = app.test_client().post('/resume/education',
+                                      json=example_education)
+    assert response.status_code == 400
+
+
+def test_experience_missing_data():
+    '''
+    Add a new experience with missing data and check that
+    it returns a 400 error
+    '''
+    example_experience = {
+        "title": "Software Developer",
+        "company": "A Cooler Company",
+        "start_date": "October 2022",
+        "description": "Writing JavaScript Code",
+        "logo": "example-logo.png"
+    }
+
+    response = app.test_client().post('/resume/experience',
+                                      json=example_experience)
+    assert response.status_code == 400
