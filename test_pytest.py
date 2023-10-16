@@ -32,6 +32,14 @@ def test_experience():
                                      json=example_experience).json['id']
     response = app.test_client().get('/resume/experience')
     assert response.json[item_id] == example_experience
+    new_id = 0
+    put_json = {
+        "current_id": item_id,
+        "new_id": new_id
+    }
+    app.test_client().put('/resume/experience', json=put_json)
+    response = app.test_client().get('/resume/experience')
+    assert response.json[new_id] == example_experience
 
 def test_delete_experience():
     '''
@@ -52,7 +60,7 @@ def test_delete_experience():
     assert response.status_code == 200
     assert response.json['message'] == "Experience deleted"
 
-def test_put_experience():
+def test_put_indexed_experience():
     '''
     Add a new experience, update a field in the experience, then get all experiences. 
     
@@ -92,11 +100,20 @@ def test_education():
                                      json=example_education).json['id']
     response = app.test_client().get('/resume/education')
     assert response.json[item_id] == example_education
+    new_id = 0
+    put_json = {
+        "current_id": item_id,
+        "new_id": new_id
+    }
+    app.test_client().put('/resume/education', json=put_json)
+    response = app.test_client().get('/resume/education')
+    assert response.json[new_id] == example_education
     app.test_client().delete('/resume/education',json={"id":item_id})
     response_two = app.test_client().get('/resume/education')
     assert len(response_two.get_json()) != len(response.get_json())
 
-def test_put_education():
+
+def test_put_indexed_education():
     '''
     Add a new education, update a field in the education, then get all education resources. 
     
@@ -135,12 +152,18 @@ def test_skill():
 
     response = app.test_client().get('/resume/skill')
     assert response.json[item_id] == example_skill
-    #tests the delete_skill() function
-    app.test_client().delete('/resume/skill',json={"id":item_id})
-    response_two = app.test_client().get('/resume/skill')
-    assert len(response_two.get_json()) != len(response.get_json())
 
-def test_put_skill():
+    new_id = 0
+    put_json = {
+        "current_id": item_id,
+        "new_id": new_id
+    }
+    app.test_client().put('/resume/skill', json=put_json)
+    response = app.test_client().get('/resume/skill')
+    assert response.json[new_id] == example_skill
+
+
+def test_put_indexed_skill():
     '''
     Add a new skill, update a field in the skill, then get all skill resources. 
     

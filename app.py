@@ -4,6 +4,7 @@ Flask Application
 from flask import Flask, jsonify, request
 from models import Experience, Education, Skill, Contact
 
+
 app = Flask(__name__)
 
 data = {
@@ -54,6 +55,7 @@ def check_fields(incoming_data, required_fields):
         return jsonify({"message": f"Missing required fields: {missing_fields}"}), 400
     return None
 
+
 @app.route('/test')
 def hello_world():
     '''
@@ -62,9 +64,11 @@ def hello_world():
     return jsonify({"message": "Hello, World!"})
 
 
+
+@app.route('/resume/experience', methods=['GET'])
 def get_experience():
     '''
-    Handles GET experience requests
+    Handles experience GET requests
     '''
     index = request.args.get('id')
     if index and index.isdigit():
@@ -74,49 +78,49 @@ def get_experience():
         return jsonify({"message": "Invalid id"}), 400
     return jsonify(data["experience"])
 
+
+@app.route('/resume/experience', methods=['POST'])
 def post_experience():
     '''
-    Handles POST experience requests
+    Handles experience POST requests
     '''
     content = request.get_json()
     required_fields = set(["title", "company", "start_date", "end_date", "description", "logo"])
     if not content or any(field not in content for field in required_fields):
         return jsonify({"message": "Missing required fields"}), 400
     data["experience"].append(Experience(**content))
-    return jsonify({"id": len(data["experience"]) - 1}), 201
+    result = content
+    result["id"] = len(data["experience"]) - 1
+    return jsonify(result), 201
 
-def delete_experience():
+
+@app.route('/resume/experience', methods=['PUT'])
+def put_experience():
     '''
-    Handles DELETE experience requests
+    Handles experience PUT requests
     '''
     if request.get_json():
-        id_data = request.get_json()
-        index = id_data.get("id", None)
-        if index and 0 <= int(index) < len(data["experience"]):
-            del data["experience"][int(index)]
-            return jsonify({"message": "Experience deleted"}), 200
-    return jsonify({"message": "Invalid id"}), 400
-
-@app.route('/resume/experience', methods=['GET', 'POST', 'DELETE'])
-def experience():
-    '''
-    Handles experience requests
-    '''
-    if request.method == 'GET':
-        return get_experience()
-
-    if request.method == 'POST':
-        return post_experience()
-
-    if request.method == 'DELETE':
-        return delete_experience()
-
-
-    return jsonify({"message": "Invalid method"}), 405
+        content = request.get_json()
+        if "current_id" in content and "new_id" in content:
+            current_id = content["current_id"]
+            new_id = content["new_id"]
+            try:
+                current_id = int(current_id)
+                new_id = int(new_id)
+            except ValueError:
+                return jsonify({"message": "Invalid input"}), 400
+            if -1 < current_id < len(data["experience"]) and -1 < new_id < len(data["experience"]):
+                temp = data["experience"][current_id]
+                data["experience"][current_id] = data["experience"][new_id]
+                data["experience"][new_id] = temp
+                return jsonify(data["experience"])
+            return jsonify({"message": "Invalid id"}), 400
+        return jsonify({"message": "Mandatory fields are missing"}), 400
+    return jsonify({"message": "Invalid data recieved"}), 400
 
 
 @app.route('/resume/experience/<index>', methods=['PUT'])
-def put_experience(index):
+def put_experience_indexed(index):
     '''
     Handle experience PUT requests
     Returns the updated experience resource
@@ -138,6 +142,7 @@ def put_experience(index):
             setattr(data["experience"][index], field, content[field])
     return jsonify(data["experience"][index]), 200
 
+
 @app.route('/resume/education', methods=['GET'])
 def get_education():
     '''
@@ -150,6 +155,7 @@ def get_education():
         return jsonify({"message": "Invalid index"}), 400
     return jsonify(data["education"])
 
+
 @app.route('/resume/education', methods=['DELETE'])
 def delete_education():
     """
@@ -161,8 +167,10 @@ def delete_education():
         if -1 < index < len(data["education"]):
             del data["education"][index]
         else:
-            return jsonify({"message":"Index is out of bounds"}), 400
-    return jsonify({"message":"Inavlid method"}), 405
+            return jsonify({"message": "Index is out of bounds"}), 400
+    return jsonify({"message": "Inavlid method"}), 405
+
+
 @app.route('/resume/education', methods=['POST'])
 def post_education():
     '''
@@ -175,13 +183,42 @@ def post_education():
             return bad_fields
         for value in education_data.values():
             if value is None:
-                return jsonify({"message":"Mandatory fields are missing"}), 400
+                return jsonify({"message": "Mandatory fields are missing"}), 400
         data['education'].append(Education(**education_data))
-        return jsonify({"id":len(data["education"])-1})
-    return jsonify({"message":"Invalid data recieved"}), 400
+        result = education_data
+        result["id"] = len(data["education"]) - 1
+        return jsonify(result), 201
+    return jsonify({"message": "Invalid data recieved"}), 400
+
+
+@app.route('/resume/education', methods=['PUT'])
+def put_education():
+    '''
+    Handles education PUT requests
+    '''
+    if request.get_json():
+        content = request.get_json()
+        if "current_id" in content and "new_id" in content:
+            current_id = content["current_id"]
+            new_id = content["new_id"]
+            try:
+                current_id = int(current_id)
+                new_id = int(new_id)
+            except ValueError:
+                return jsonify({"message": "Invalid input"}), 400
+            if -1 < current_id < len(data["education"]) and -1 < new_id < len(data["education"]):
+                temp = data["education"][current_id]
+                data["education"][current_id] = data["education"][new_id]
+                data["education"][new_id] = temp
+                return jsonify(data["education"])
+            return jsonify({"message": "Invalid id"}), 400
+        return jsonify({"message": "Mandatory fields are missing"}), 400
+    return jsonify({"message": "Invalid data recieved"}), 400
+
+
 
 @app.route('/resume/education/<index>', methods=['PUT'])
-def put_education(index):
+def put_education_indexed(index):
     '''
     Handle education PUT requests
     Returns the updated education resource
@@ -204,6 +241,7 @@ def put_education(index):
 
     return jsonify(data["education"][index]), 200
 
+
 @app.route('/resume/skill', methods=['GET'])
 def get_skill():
     '''
@@ -215,6 +253,7 @@ def get_skill():
             return jsonify(data["skill"][int(index)])
         return jsonify({"message": "Invalid index"}), 400
     return jsonify(data.get('skill', []))
+
 
 @app.route('/resume/skill', methods=['POST'])
 def post_skill():
@@ -233,22 +272,34 @@ def post_skill():
     data['skill'].append(new_skill)
     return jsonify({"id": len(data['skill']) - 1})
 
-@app.route('/resume/skill', methods=['DELETE'])
-def delete_skill():
-    """
-    Handles DELETE skill requests
-    """
+@app.route('/resume/skill', methods=['PUT'])
+def put_skill():
+    '''
+    Handles PUT skill requests
+    '''
     if request.get_json():
-        id_data = request.get_json()
-        index = id_data["id"]
-        if -1 < index < len(data["skill"]):
-            del data["skill"][index]
-        else:
-            return jsonify({"message":"Index is out of bounds"}), 400
-    return jsonify({"message":"Inavlid method"}), 405
+        content = request.get_json()
+        if "current_id" in content and "new_id" in content:
+            current_id = content["current_id"]
+            new_id = content["new_id"]
+            try:
+                current_id = int(current_id)
+                new_id = int(new_id)
+            except ValueError:
+                return jsonify({"message": "Invalid input"}), 400
+            if -1 < current_id < len(data["skill"]) and -1 < new_id < len(data["skill"]):
+                temp = data["skill"][current_id]
+                data["skill"][current_id] = data["skill"][new_id]
+                data["skill"][new_id] = temp
+                return jsonify(data["skill"])
+            return jsonify({"message": "Invalid id"}), 400
+        return jsonify({"message": "Mandatory fields are missing"}), 400
+    return jsonify({"message": "Invalid data recieved"}), 400
+
+
 
 @app.route('/resume/skill/<index>', methods=['PUT'])
-def put_skill(index):
+def put_skill_indexed(index):
     '''
     Handle skill PUT requests
     Returns the updated skill resource
